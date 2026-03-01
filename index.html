@@ -1,0 +1,688 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lab 6 — Trivia Challenge (Starter, Ch 9–10)</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: #0b1220;
+      color: #eef2ff;
+    }
+
+    main {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 18px;
+    }
+
+    .card {
+      background: #121b2e;
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+
+    label {
+      display: block;
+      font-weight: 700;
+      margin-top: 10px;
+    }
+
+    input,
+    select {
+      width: 100%;
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      background: #0f172a;
+      color: #eef2ff;
+    }
+
+    button {
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 0;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    button.primary {
+      background: #2563eb;
+      color: white;
+    }
+
+    button.primary:hover {
+      filter: brightness(1.5)
+    }
+
+    button.secondary {
+      background: rgba(255, 255, 255, 0.10);
+      color: white;
+    }
+
+    button.secondary:hover {
+      filter: brightness(1.5);
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    button:active {
+      transform: translateY(1px)
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    @media (max-width: 720px) {
+      .row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .err {
+      color: #fb7185;
+      min-height: 18px;
+      font-size: 0.9rem;
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      color: rgba(255, 255, 255, 0.85);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .notice {
+      padding: 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .choices {
+      display: grid;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .choiceBtn {
+      text-align: left;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #eef2ff;
+    }
+
+    .choiceBtn:hover {
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    .topbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .banner {
+      width: 100%;
+      max-height: 200px;
+      object-fit: cover;
+      border-radius: 12px;
+      margin-bottom: 12px;
+    }
+
+    .app-title {
+      font-size: 40px;
+      margin: 0;
+    }
+  </style>
+</head>
+
+<body>
+  <main>
+    <div class="topbar">
+      <img
+        src="https://images.unsplash.com/photo-1665789318391-6057c533005e?q=80&w=3840&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+        alt="Question marks against a dark background" class="banner"
+        title="Image source: Unsplash / [Photo by Laurin Steffens https://unsplash.com/photos/a-group-of-white-and-orange-objects-IVGZ6NsmyBI]" />
+      <h1 class="app-title">Quiz Master mk.315</h1>
+      <span class="pill">Ch 9–10: DOM + Events + Async APIs + localStorage</span>
+    </div>
+
+    <!-- ============================
+       SCREEN 1: START SCREEN
+       ============================ -->
+    <section class="card" id="screenStart">
+      <h2>Start</h2>
+
+      <div class="notice">
+        <p><b>Goal:</b> Complete one trivia round and see your score.</p>
+        <p><b>Storage:</b> Your best score is saved in <b>localStorage</b> (this browser only).</p>
+      </div>
+
+      <div class="row">
+        <div>
+          <label for="name">Name</label>
+          <input id="name" placeholder="Your name" />
+          <div class="err" id="errName"></div>
+        </div>
+        <div>
+          <label for="email">Email</label>
+          <input id="email" placeholder="you@example.com" />
+          <div class="err" id="errEmail"></div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label for="category">Category (optional)</label>
+          <select id="category">
+            <option value="">Any Category</option>
+            <option value="18">Computers</option>
+            <option value="17">Science & Nature</option>
+            <option value="19">Mathematics</option>
+            <option value="9">General Knowledge</option>
+          </select>
+        </div>
+        <div>
+          <!-- Task D: Difficulty selection -->
+          <label for="mode">Difficulty</label>
+          <select id="mode">
+            <option value="easy">Easy</option>
+            <option value="medium">Medium</option>
+            <option value="hard">Hard</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="topbar" style="margin-top:12px;">
+        <button class="primary" id="btnStart">Start Quiz</button>
+        <button class="secondary" id="btnReset">Reset Best Score</button>
+      </div>
+
+      <div style="margin-top:12px;" class="notice" id="progressBox">
+        Best score: not loaded yet…
+      </div>
+    </section>
+
+    <!-- ============================
+       SCREEN 2: QUIZ SCREEN
+       ============================ -->
+    <section class="card hidden" id="screenQuiz">
+      <div class="topbar">
+        <h2 id="quizTitle">Trivia Round</h2>
+        <div>
+          <span class="pill">Score: <b id="score">0</b></span>
+          <span class="pill">Q: <b id="qNum">1</b>/<span id="qTotal">10</span></span>
+        </div>
+      </div>
+
+      <div class="notice hidden" id="loadingBox">Loading questions…</div>
+      <div class="notice hidden" id="apiErrorBox"></div>
+
+      <div class="notice" id="questionText">Question will appear here…</div>
+      <div class="choices" id="choices"></div>
+
+      <div class="topbar" style="margin-top:12px;">
+        <button class="secondary" id="btnQuit">Quit</button>
+      </div>
+    </section>
+
+    <!-- ============================
+       SCREEN 3: RESULT SCREEN
+       ============================ -->
+    <section class="card hidden" id="screenResult">
+      <h2 id="resultTitle">Result</h2>
+      <div class="notice" id="resultText"></div>
+
+      <!-- Task E: Answer Review (displayed at end) -->
+      <div class="notice" id="reviewBox" style="white-space: pre-wrap; margin-top: 10px;">
+        Answer review will appear here…
+      </div>
+
+      <div class="topbar" style="margin-top:12px;">
+        <button class="primary" id="btnPlayAgain">Play Again</button>
+        <button class="secondary" id="btnHome">Home</button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+
+    // 1) Without async/await, we might use data before it exists. fetch() returns a promise, so we need to pause.
+    // 2) OpenTDB response_code informs us if OTDB API was able to get us questions. 0 means success, 5 means our token is exhausted
+    // and we need a new one. I throw an error.
+    // 3) An object is stored under STORAGE_KEY in localStorage containing the best score data.
+    // We can only store strings so we use JSON.stringify and JSON.parse.
+    // 4) The click handler calls validateStartForm(), and if valid, calls runRoundFlow(), then selects a difficulty to
+    // ROUND.difficulty, then calls getToken(), then fetchQuestions(). await pauses and the UI updates and displays
+    // questions after the data is ready.
+
+    (function () {
+      "use strict";
+
+      // ------------------------------------------------------
+      // Round configuration
+      // ------------------------------------------------------
+      var ROUND = { difficulty: "easy", amount: 10 };
+
+      var STORAGE_KEY = "lab6_trivia_best";
+
+      var API = {
+        token: "https://opentdb.com/api_token.php?command=request",
+        questionsUrl: function (amount, difficulty, category, token) {
+          var p = new URLSearchParams();
+          p.set("amount", String(amount));
+          p.set("difficulty", difficulty);
+          p.set("type", "multiple");
+          if (category) { p.set("category", category); }
+          if (token) { p.set("token", token); }
+          return "https://opentdb.com/api.php?" + p.toString();
+        }
+      };
+
+      function $(id) { return document.getElementById(id); }
+
+      // Screens
+      var screenStart = $("screenStart");
+      var screenQuiz = $("screenQuiz");
+      var screenResult = $("screenResult");
+
+      // Inputs
+      var nameInput = $("name");
+      var emailInput = $("email");
+      var categorySelect = $("category");
+      var modeSelect = $("mode");   // Difficulty dropdown: easy/medium/hard
+
+      // Errors
+      var errName = $("errName");
+      var errEmail = $("errEmail");
+
+      // Buttons
+      var btnStart = $("btnStart");
+      var btnReset = $("btnReset");
+      var btnQuit = $("btnQuit");
+      var btnPlayAgain = $("btnPlayAgain");
+      var btnHome = $("btnHome");
+
+      // Progress UI
+      var progressBox = $("progressBox");
+
+      // Quiz UI
+      var quizTitle = $("quizTitle");
+      var scoreEl = $("score");
+      var qNumEl = $("qNum");
+      var qTotalEl = $("qTotal");
+      var questionText = $("questionText");
+      var choicesBox = $("choices");
+
+      // Loading + errors
+      var loadingBox = $("loadingBox");
+      var apiErrorBox = $("apiErrorBox");
+
+      // Result UI
+      var resultTitle = $("resultTitle");
+      var resultText = $("resultText");
+      var reviewBox = $("reviewBox");
+
+      // Runtime state
+      var state = {
+        player: { name: "", email: "", category: "", mode: "easy" },
+        token: null,
+        questions: [],
+        idx: 0,
+        score: 0
+      };
+
+      // Screen helpers
+      function show(el) { el.classList.remove("hidden"); }
+      function hide(el) { el.classList.add("hidden"); }
+
+      function showOnly(which) {
+        hide(screenStart);
+        hide(screenQuiz);
+        hide(screenResult);
+        show(which);
+      }
+
+      function setLoading(on) {
+        if (on) { show(loadingBox); }
+        else { hide(loadingBox); }
+      }
+
+      function setApiError(msg) {
+        if (!msg) {
+          apiErrorBox.textContent = "";
+          hide(apiErrorBox);
+          return;
+        }
+        apiErrorBox.textContent = msg;
+        show(apiErrorBox);
+      }
+
+      function decodeHTMLEntities(s) {
+        var t = document.createElement("textarea");
+        t.innerHTML = s;
+        return t.value;
+      }
+
+      function shuffle(arr) {
+        var a = arr.slice();
+        var i, j, tmp;
+        for (i = a.length - 1; i > 0; i--) {
+          j = Math.floor(Math.random() * (i + 1));
+          tmp = a[i];
+          a[i] = a[j];
+          a[j] = tmp;
+        }
+        return a;
+      }
+
+      function validateStartForm() {
+        errName.textContent = "";
+        errEmail.textContent = "";
+
+        var ok = true;
+        var name = nameInput.value.trim();
+        if (name.length < 2 || name.length > 30) {
+          errName.textContent = "Name must be 2–30 characters.";
+          ok = false;
+        }
+
+        var email = emailInput.value.trim();
+        var emailOk = /^\S+@\S+\.\S+$/.test(email);
+        if (!emailOk) {
+          errEmail.textContent = "Enter a valid email (example: a@b.com).";
+          ok = false;
+        }
+
+        return ok;
+      }
+
+      function loadProgress() {
+        var raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) {
+          return { bestScore: 0, bestTotal: 0, attempts: 0 };
+        }
+
+        try {
+          var obj = JSON.parse(raw);
+          if (!obj || typeof obj !== "object") throw new Error("Bad data");
+          if (typeof obj.bestScore !== "number") throw new Error("Bad bestScore");
+          if (typeof obj.bestTotal !== "number") throw new Error("Bad bestTotal");
+          if (typeof obj.attempts !== "number") throw new Error("Bad attempts");
+          return obj;
+        } catch (e) {
+          return { bestScore: 0, bestTotal: 0, attempts: 0 };
+        }
+      }
+
+      function saveProgress(obj) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(obj));
+      }
+
+      async function getToken() {
+        var res = await fetch(API.token);
+        if (!res.ok) {
+          throw new Error("Token request failed (" + res.status + ")");
+        }
+
+        var data = await res.json();
+        if (!data || !data.token) {
+          throw new Error("Token missing in response.");
+        }
+        return data.token;
+      }
+
+      async function fetchQuestions(cfg) {
+        var url = API.questionsUrl(cfg.amount, cfg.difficulty, state.player.category, state.token);
+
+        var res = await fetch(url);
+        if (!res.ok) {
+          throw new Error("Questions request failed (" + res.status + ")");
+        }
+
+        var data = await res.json();
+
+        if (!data || typeof data.response_code !== "number") {
+          throw new Error("Unexpected API response.");
+        }
+
+        if (data.response_code === 0) {
+          return data.results;
+        }
+
+        if (data.response_code === 5) {
+          state.token = null;
+          throw new Error("OpenTDP rate limit/token exhausted. Please try again.");
+        }
+
+        throw new Error("OpenTDB error (response_code " + data.response_code + ").");
+      }
+
+      // Display best score summary on Start screen
+      function renderBest() {
+        var p = loadProgress();
+        var bestScore = (p && typeof p.bestScore === "number") ? p.bestScore : 0;
+        var bestTotal = (p && typeof p.bestTotal === "number") ? p.bestTotal : 0;
+        var attempts = (p && typeof p.attempts === "number") ? p.attempts : 0;
+
+        if (bestTotal > 0) {
+          progressBox.textContent = "Best score: " + bestScore + "/" + bestTotal + " • Attempts: " + attempts;
+        } else {
+          progressBox.textContent = "Best score: none yet • Attempts: " + attempts;
+        }
+      }
+
+      // Copy inputs into state.player
+      function startFromForm() {
+        state.player.name = nameInput.value.trim();
+        state.player.email = emailInput.value.trim();
+        state.player.category = categorySelect.value;
+        state.player.mode = modeSelect.value; // stores easy/medium/hard
+      }
+
+      function beginRound() {
+        state.questions = [];
+        state.idx = 0;
+        state.score = 0;
+
+        scoreEl.textContent = "0";
+        qNumEl.textContent = "1";
+        qTotalEl.textContent = String(ROUND.amount);
+        setApiError(null);
+      }
+
+      function renderQuestion() {
+        var q = state.questions[state.idx];
+
+        // Show current difficulty in the title
+        quizTitle.textContent = "Trivia Round (" + ROUND.difficulty + ")";
+
+        qTotalEl.textContent = String(ROUND.amount);
+        qNumEl.textContent = String(state.idx + 1);
+
+        questionText.textContent = q.question;
+        choicesBox.innerHTML = "";
+
+        var i;
+        for (i = 0; i < q.choices.length; i++) {
+          (function (choiceText) {
+            var btn = document.createElement("button");
+            btn.className = "choiceBtn";
+            btn.textContent = choiceText;
+
+            btn.addEventListener("click", function () {
+              handleAnswer(choiceText);
+            });
+
+            choicesBox.appendChild(btn);
+          })(q.choices[i]);
+        }
+      }
+
+      function handleAnswer(choiceText) {
+        var q = state.questions[state.idx];
+
+        q.userChoice = choiceText;
+
+        if (choiceText === q.correct) {
+          state.score = state.score + 1;
+          scoreEl.textContent = String(state.score);
+        }
+
+        state.idx = state.idx + 1;
+
+        if (state.idx >= ROUND.amount) {
+          finishRound();
+        } else {
+          renderQuestion();
+        }
+      }
+
+      function finishRound() {
+        showOnly(screenResult);
+
+        resultTitle.textContent = "Result";
+        resultText.textContent = state.player.name + ", your score is " + state.score + "/" + ROUND.amount + ".";
+
+        var lines = [];
+        lines.push("Answer Review (Your answer vs Correct answer):");
+        lines.push("");
+
+        var i;
+        for (i = 0; i < state.questions.length; i++) {
+          var qq = state.questions[i];
+          lines.push((i + 1) + ") " + qq.question);
+
+          var yourAns = (typeof qq.userChoice === "string") ? qq.userChoice : "(no answer)";
+          var ok = (yourAns === qq.correct);
+          var mark = ok ? "✓" : "✗";
+
+          lines.push("   Your answer: " + yourAns + " " + mark);
+          lines.push("   Correct: " + qq.correct);
+
+          lines.push("");
+        }
+
+        // Show the review text on the page
+        reviewBox.textContent = lines.join("\n");
+
+        // Update best score in localStorage
+        var p = loadProgress();
+        var attempts = (p && typeof p.attempts === "number") ? p.attempts : 0;
+        attempts = attempts + 1;
+
+        var bestScore = (p && typeof p.bestScore === "number") ? p.bestScore : 0;
+        var bestTotal = (p && typeof p.bestTotal === "number") ? p.bestTotal : 0;
+
+        if (bestTotal === 0 || state.score > bestScore) {
+          saveProgress({ bestScore: state.score, bestTotal: ROUND.amount, attempts: attempts });
+        } else {
+          saveProgress({ bestScore: bestScore, bestTotal: bestTotal, attempts: attempts });
+        }
+
+        renderBest();
+      }
+
+      async function runRoundFlow() {
+        if (!validateStartForm()) { return; }
+
+        startFromForm();
+        ROUND.difficulty = state.player.mode;
+
+        beginRound();
+        showOnly(screenQuiz);
+
+        try {
+          setLoading(true);
+
+          if (!state.token) {
+            state.token = await getToken();
+          }
+
+          var raw = await fetchQuestions(ROUND);
+
+          // Normalize API data into internal format
+          state.questions = [];
+          var i;
+          for (i = 0; i < raw.length; i++) {
+            var item = raw[i];
+
+            var correct = decodeHTMLEntities(item.correct_answer);
+
+            var incorrect = [];
+            var k;
+            for (k = 0; k < item.incorrect_answers.length; k++) {
+              incorrect.push(decodeHTMLEntities(item.incorrect_answers[k]));
+            }
+
+            var choices = shuffle([correct].concat(incorrect));
+
+            state.questions.push({
+              question: decodeHTMLEntities(item.question),
+              correct: correct,
+              choices: choices
+            });
+          }
+
+          setLoading(false);
+          renderQuestion();
+
+        } catch (e) {
+          setLoading(false);
+          setApiError(e.message || "Network / API error.");
+        }
+      }
+
+      // Event listeners
+      btnStart.addEventListener("click", function () {
+        runRoundFlow();
+      });
+
+      btnReset.addEventListener("click", function () {
+        localStorage.removeItem(STORAGE_KEY);
+        renderBest();
+        alert("Best score reset.");
+      });
+
+      btnQuit.addEventListener("click", function () {
+        showOnly(screenStart);
+      });
+
+      btnPlayAgain.addEventListener("click", function () {
+        runRoundFlow();
+      });
+
+      btnHome.addEventListener("click", function () {
+        showOnly(screenStart);
+      });
+
+      // Boot
+      renderBest();
+      showOnly(screenStart);
+
+    })();
+  </script>
+</body>
+
+</html>
